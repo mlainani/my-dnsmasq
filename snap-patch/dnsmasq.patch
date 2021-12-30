@@ -1,0 +1,103 @@
+From 611c2fc80ea30d92735ddbba9e6faa5cb2e6e7bf Mon Sep 17 00:00:00 2001
+From: Madani Lainani <madani.lainani@itron.com>
+Date: Fri, 17 Dec 2021 11:38:50 +0000
+Subject: [PATCH] Create patch for IoTRv5 mesh control snap
+
+This patch is based on the one for the dnsmasq part of the
+network-manager snap v1.22.10-9 from Canonical
+---
+ src/config.h  |  6 +++---
+ src/dnsmasq.c | 30 +++++++++++++++---------------
+ 2 files changed, 18 insertions(+), 18 deletions(-)
+
+diff --git a/src/config.h b/src/config.h
+index 509023d..67e335f 100644
+--- a/src/config.h
++++ b/src/config.h
+@@ -202,7 +202,7 @@ RESOLVFILE
+ #   elif defined(__ANDROID__)
+ #      define LEASEFILE "/data/misc/dhcp/dnsmasq.leases"
+ #   else
+-#      define LEASEFILE "/var/lib/misc/dnsmasq.leases"
++#      define LEASEFILE "/var/snap/my-dnsmasq/current/lib/misc/dnsmasq.leases"
+ #   endif
+ #endif
+ 
+@@ -210,7 +210,7 @@ RESOLVFILE
+ #   if defined(__FreeBSD__)
+ #      define CONFFILE "/usr/local/etc/dnsmasq.conf"
+ #   else
+-#      define CONFFILE "/etc/dnsmasq.conf"
++#      define CONFFILE "/var/snap/my-dnsmasq/current/etc/dnsmasq.conf"
+ #   endif
+ #endif
+ 
+@@ -226,7 +226,7 @@ RESOLVFILE
+ #   if defined(__ANDROID__)
+ #      define RUNFILE "/data/dnsmasq.pid"
+ #    else
+-#      define RUNFILE "/var/run/dnsmasq.pid"
++#      define RUNFILE "/var/snap/my-dnsmasq/current/run/dnsmasq.pid"
+ #    endif
+ #endif
+ 
+diff --git a/src/dnsmasq.c b/src/dnsmasq.c
+index 2ac431f..200160e 100644
+--- a/src/dnsmasq.c
++++ b/src/dnsmasq.c
+@@ -569,8 +569,8 @@ int main (int argc, char **argv)
+ 		 of the directory containing the file. That directory will
+ 		 need to by owned by the dnsmasq user, and the ownership of the
+ 		 file has to match, to keep systemd >273 happy. */
+-	      if (getuid() == 0 && ent_pw && ent_pw->pw_uid != 0 && fchown(fd, ent_pw->pw_uid, ent_pw->pw_gid) == -1)
+-		chown_warn = errno;
++	      /* if (getuid() == 0 && ent_pw && ent_pw->pw_uid != 0 && fchown(fd, ent_pw->pw_uid, ent_pw->pw_gid) == -1) */
++	      /*   chown_warn = errno; */
+ 
+ 	      if (!read_write(fd, (unsigned char *)daemon->namebuff, strlen(daemon->namebuff), 0))
+ 		err = 1;
+@@ -616,16 +616,16 @@ int main (int argc, char **argv)
+   if (!option_bool(OPT_DEBUG) && getuid() == 0)   
+     {
+       int bad_capabilities = 0;
+-      gid_t dummy;
++      /* gid_t dummy; */
+       
+       /* remove all supplementary groups */
+-      if (gp && 
+-	  (setgroups(0, &dummy) == -1 ||
+-	   setgid(gp->gr_gid) == -1))
+-	{
+-	  send_event(err_pipe[1], EVENT_GROUP_ERR, errno, daemon->groupname);
+-	  _exit(0);
+-	}
++      /* if (gp &&  */
++      /*     (setgroups(0, &dummy) == -1 || */
++      /*      setgid(gp->gr_gid) == -1)) */
++      /*   { */
++      /*     send_event(err_pipe[1], EVENT_GROUP_ERR, errno, daemon->groupname); */
++      /*     _exit(0); */
++      /*   } */
+   
+       if (ent_pw && ent_pw->pw_uid != 0)
+ 	{     
+@@ -675,11 +675,11 @@ int main (int argc, char **argv)
+ 	    }
+ 	  
+ 	  /* finally drop root */
+-	  if (setuid(ent_pw->pw_uid) == -1)
+-	    {
+-	      send_event(err_pipe[1], EVENT_USER_ERR, errno, daemon->username);
+-	      _exit(0);
+-	    }     
++	  /* if (setuid(ent_pw->pw_uid) == -1) */
++	  /*   { */
++	  /*     send_event(err_pipe[1], EVENT_USER_ERR, errno, daemon->username); */
++	  /*     _exit(0); */
++	  /*   }      */
+ 
+ #ifdef HAVE_LINUX_NETWORK
+ 	  if (is_dad_listeners() || option_bool(OPT_CLEVERBIND))
+-- 
+2.25.1
+
