@@ -1,6 +1,6 @@
 name: my-dnsmasq
 base: core20
-version: '0.1'
+version: '0.2'
 summary: My snap for the dnsmasq program
 description: |
   My snap for the dnsmasq program
@@ -10,29 +10,37 @@ confinement: devmode
 
 apps:
     dnsmasq:
-      command: sbin/dnsmasq --bind-interfaces
+      command: bin/dnsmasq --keep-in-foreground --bind-interfaces
       plugs: [network, network-bind, network-control, network-observe, network-setup-observe]
       daemon: simple
-      restart-condition: always
+      restart-condition: never
 
 parts:
   dnsmasq:
-    # after: [ stack-snaps-tools ]
-    plugin: make
-    source: https://git.launchpad.net/ubuntu/+source/dnsmasq
-    source-type: git
-    source-branch: applied/ubuntu/focal-updates
-    build-packages:
-      - build-essential
-    make-parameters:
-      - PREFIX=/
-    override-build: |
-      set -ex
-      # "$SNAPCRAFT_STAGE"/build-tools/check-versions dnsmasq-base no
-      git apply "$SNAPCRAFT_PROJECT_DIR"/snap-patch/dnsmasq.patch
-      snapcraftctl build
-    filesets:
-      binaries:
-        - sbin/dnsmasq
+    plugin: nil
+    stage-packages:
+      - dnsmasq-base
+    organize:
+      usr/sbin/: bin/
     prime:
-      - $binaries
+     - bin/dnsmasq
+     - lib/*/libidn.so.*
+    # # after: [ stack-snaps-tools ]
+    # plugin: make
+    # source: https://git.launchpad.net/ubuntu/+source/dnsmasq
+    # source-type: git
+    # source-branch: applied/ubuntu/focal-updates
+    # build-packages:
+    #   - build-essential
+    # make-parameters:
+    #   - PREFIX=/
+    # override-build: |
+    #   set -ex
+    #   # "$SNAPCRAFT_STAGE"/build-tools/check-versions dnsmasq-base no
+    #   git apply "$SNAPCRAFT_PROJECT_DIR"/snap-patch/dnsmasq.patch
+    #   snapcraftctl build
+    # filesets:
+    #   binaries:
+    #     - sbin/dnsmasq
+    # prime:
+    #   - $binaries
